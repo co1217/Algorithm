@@ -1,0 +1,180 @@
+#pragma warning (disable:4996)
+#include <cstdio>
+#include <algorithm>
+#include <limits.h>
+#include <cstring>
+#include <queue>
+#include <vector>
+#include <functional>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+int di[4] = {-1,0,1,0}, dj[4] = {0,1,0,-1};
+int T, N;
+int arr[20][20], ans, maxN;
+vector<pair<int,int>> v;
+
+bool check(int i, int j, int pos) {
+
+    if (pos == 0) {
+        int n = 1;
+        while (i - n >= 0) {
+            if (arr[i - n][j] != 0)
+                return false;
+            n++;
+        }
+    } else if (pos == 1) {
+        int n = 1;
+        while (j + n < N) {
+            if (arr[i][j + n] != 0)
+                return false;
+            n++;
+        }
+
+    } else if (pos == 2) {
+        int n = 1;
+        while (i + n < N) {
+            if (arr[i + n][j] != 0)
+                return false;
+            n++;
+        }
+
+    } else if (pos == 3) {
+        int n = 1;
+        while (j - n >= 0) {
+            if (arr[i][j - n] != 0)
+                return false;
+            n++;
+        }
+    }
+
+    return true;
+}
+void fill(int i, int j, int pos) {
+    if (pos == 0) {
+        int n = 1;
+        while (i - n >= 0) {
+            arr[i - n][j] = 2;
+            n++;
+        }
+    } else if (pos == 1) {
+        int n = 1;
+        while (j + n < N) {
+            arr[i][j + n] = 2;
+            n++;
+        }
+
+    } else if (pos == 2) {
+        int n = 1;
+        while (i + n < N) {
+            arr[i + n][j] = 2;
+            n++;
+        }
+
+    } else if (pos == 3) {
+        int n = 1;
+        while (j - n >= 0) {
+            arr[i][j - n] = 2;
+            n++;
+        }
+    }
+}
+void blank(int i, int j, int pos){
+    if (pos == 0) {
+        int n = 1;
+        while (i - n >= 0) {
+            arr[i - n][j] = 0;
+            n++;
+        }
+    } else if (pos == 1) {
+        int n = 1;
+        while (j + n < N) {
+            arr[i][j + n] = 0;
+            n++;
+        }
+
+    } else if (pos == 2) {
+        int n = 1;
+        while (i + n < N) {
+            arr[i + n][j] = 0;
+            n++;
+        }
+
+    } else if (pos == 3) {
+        int n = 1;
+        while (j - n >= 0) {
+            arr[i][j - n] = 0;
+            n++;
+        }
+    }
+}
+
+void DFS(int cnt, int num){
+    if(cnt == v.size()){
+        int sum = 0;
+
+        for(int i = 0;i<N;i++){
+            for(int j = 0;j<N;j++){
+                if(arr[i][j] == 2)
+                    sum++;
+            }
+        }
+        if(maxN < num) {
+            maxN = num;
+            ans = sum;
+        }
+        else if(maxN == num){
+            ans = min(ans,sum);
+        }
+
+        return;
+    }
+
+    if(v[cnt].first ==  0 || v[cnt].first == N - 1 || v[cnt].second == 0 || v[cnt].second == N - 1){
+        DFS(cnt+1, num+1);
+    }
+    else {
+        int flag = 0;
+        for (int k = 0; k < 4; k++) {
+            if(check(v[cnt].first, v[cnt].second, k)){
+                flag = 1;
+                fill(v[cnt].first,v[cnt].second,k);
+                DFS(cnt+1,num+1);
+                blank(v[cnt].first,v[cnt].second,k);
+            }
+        }
+        if(!flag)
+            DFS(cnt+1,num);
+    }
+
+}
+
+int main() {
+
+    //freopen("/Users/yoonnaram/CLionProjects/untitled/sample_input.txt", "r", stdin);
+    scanf("%d", &T);
+
+    for (int tc = 1; tc <= T; tc++) {
+        scanf("%d", &N);
+        memset(arr,0,sizeof(arr));
+        ans = INT_MAX/2;
+        maxN = 0;
+        v.clear();
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                scanf("%d", &arr[i][j]);
+                if (arr[i][j] == 1) {
+                    v.push_back(make_pair(i, j));
+                }
+            }
+        }
+
+        DFS(0, 0);
+
+        printf("#%d %d\n", tc, ans);
+
+    }
+}

@@ -24,7 +24,7 @@ queue<int> q;
 
 int main() {
 
-    freopen("/Users/yoonnaram/CLionProjects/untitled/sample_input.txt","r",stdin);
+    //freopen("/Users/yoonnaram/CLionProjects/untitled/sample_input.txt","r",stdin);
 
     scanf("%d",&T);
 

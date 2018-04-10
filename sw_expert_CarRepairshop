@@ -1,0 +1,166 @@
+#include <cstdio>
+#include <algorithm>
+#include <string.h>
+#include <limits.h>
+#include <iostream>
+#include <limits.h>
+#include <vector>
+#include <queue>
+using namespace std;
+
+typedef struct info{
+    int a;
+    int b;
+    int num;
+    int work;
+} info;
+
+int T, ans;
+int N,M,K,A,B;
+
+int acost[15]; // a창구 비용
+int bcost[15]; // b창구 비용
+queue<int> q;
+
+int main() {
+
+    freopen("/Users/yoonnaram/CLionProjects/untitled/sample_input.txt","r",stdin);
+
+    scanf("%d",&T);
+
+    for (int tc = 1; tc <= T; tc++) {
+        scanf("%d %d %d %d %d",&N,&M,&K,&A,&B);
+
+        for(int n = 1;n<=N;n++)
+            scanf("%d",&acost[n]);
+
+        for(int m = 1;m<=M;m++)
+            scanf("%d",&bcost[m]);
+
+
+        for(int k = 0;k<K;k++){
+            int tmp;
+            scanf("%d",&tmp);
+            q.push(tmp);
+        }
+
+
+
+        queue<info> await;
+        queue<info> bwait;
+        vector<info> a[15];
+        vector<info> b[15];
+
+        int time = 0;//시간
+        int flag = 0;// while 종료 flag
+        int n = 1;// 손님 번호
+        ans = 0;
+        while(!flag){
+            if(q.empty() && await.size() == 0 && bwait.size() == 0){
+
+                int endflag = 0;
+                for(int i = 1;i<=N;i++){
+                    if(a[i].size() != 0) {
+                        endflag = 1;
+                        break;
+                    }
+                }
+
+                for(int i = 1;i<=M;i++){
+                    if(b[i].size() != 0) {
+                        endflag = 1;
+                        break;
+                    }
+                }
+
+                if(endflag == 0){
+                    flag = 1;
+                    continue;
+                }
+            }
+
+            //bwait에서 b
+            while(!bwait.empty()){
+                int bflag = 0;
+
+                info tmp = bwait.front();
+                for(int i =1;i<=M;i++){
+                    if(b[i].size() == 0){
+                        tmp.b = i;
+                        tmp.work = bcost[i];
+                        b[i].push_back(tmp);
+                        bwait.pop();
+                        bflag = 1;
+                        break;
+                    }
+                }
+                if(bflag == 0)
+                    break;
+            }
+
+            for(int i = 1;i<=M;i++){
+                if(b[i].size() != 0){
+                    b[i][0].work--;
+
+                    if(b[i][0].work == 0) {
+                        if(b[i][0].a == A && b[i][0].b == B)
+                            ans += b[i][0].num;
+                        b[i].pop_back();
+                    }
+                }
+            }
+
+            //queue에서 await로
+            while(1){
+                if(!q.empty()){
+                    int tmp = q.front();
+                    if(tmp == time){
+                        info info1;
+                        info1.a = 0;
+                        info1.b = 0;
+                        info1.num = n++;
+                        info1.work = 0;
+                        await.push(info1);
+                        q.pop();
+                    } else
+                        break;
+                } else
+                    break;
+            }
+
+            //await에서 a
+            while(!await.empty()){
+                int aflag = 0;
+
+                info tmp = await.front();
+                for(int i = 1;i<=N;i++){
+                    if(a[i].size() == 0){
+                        tmp.a = i;
+                        tmp.work = acost[i];
+                        a[i].push_back(tmp);
+                        await.pop();
+                        aflag = 1;
+                        break;
+                    }
+                }
+                if(aflag == 0)
+                    break;
+            }
+            //a
+            for(int i = 1; i<=N;i++){
+                if(a[i].size() != 0){
+                    a[i][0].work--;
+
+                    if(a[i][0].work == 0){
+                        info tmp = a[i][0];
+                        a[i].pop_back();
+                        bwait.push(tmp);
+                    }
+                }
+            }
+
+            time++;
+        }
+        printf("#%d %d\n",tc,ans?ans:-1);
+    }
+}
